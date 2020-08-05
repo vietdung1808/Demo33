@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:viewBindingIgnore="true"
+    tools:context=".MainActivity"
+    android:weightSum="10">
+
+    <fragment
+        android:layout_weight="8"
+        android:id="@+id/myMap"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        tools:context=".MapsActivity" />
+
+    <LinearLayout
+        android:gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <Button
+            android:id="@+id/buttonCheckIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Check In" />
+
+        <TextView
+            android:id="@+id/textViewLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="TextView"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:textStyle="bold"
+        android:textColor="#4A4E4E"
+        android:background="#fff"
+        android:gravity="center"
+        android:layout_weight="1"
+        android:id="@+id/textViewDistance"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="0 m"
+        android:textSize="20sp" />
+
+
+</LinearLayout>
