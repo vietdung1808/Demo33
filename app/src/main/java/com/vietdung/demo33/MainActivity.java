@@ -45,6 +45,7 @@ import com.google.android.gms.tasks.Task;
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private static final String TAG = "loidemo33";
+    private static final int REQUEST_CODE_LAST_LOCATION = 222;
     private LatLng NASU_LATLNG = new LatLng(19.336425, 105.312462);
     private Location NASU_LOCATION = new Location(LocationManager.GPS_PROVIDER);
     private static final int REQUEST_CODE_LOCATION = 111;
@@ -67,21 +68,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return;
             }
             for (Location location : locationResult.getLocations()) {
+                if (location == null) {
+                    break;
+                }
 //                double distance = getDistance(location.getLatitude(), location.getLongitude(),
 //                        NASU_LOCATION.latitude, NASU_LOCATION.longitude);
                 float distance = location.distanceTo(NASU_LOCATION);
                 tvLocation.setText(Html.fromHtml(
                         "<b>Latitude: </b>" + location.getLatitude()
                                 + "<br><b>Longitude: </b>" + location.getLongitude()));
-                tvDistance.setText(String.format("%2f Mét", distance));
+                tvDistance.setText(String.format("%2f Meter", distance));
 
-                tvDistance.append("\n" + telephonyManager.getDeviceId());
+//                tvDistance.append("\n" + telephonyManager.getDeviceId());
 
 
                 map.addMarker(new MarkerOptions()
                         .position(new LatLng(location.getLatitude(), location.getLongitude()))
                         .title("You")
-                        .icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher))
                         .snippet("Vị trí hiện tại")).showInfoWindow();
 
                 LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -89,7 +92,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 builder.include(new LatLng(location.getLatitude(), location.getLongitude()));
                 LatLngBounds bounds = builder.build();
                 map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 200));
-                map.animateCamera(CameraUpdateFactory.zoomTo(14), 2000, null);
+//                map.animateCamera(CameraUpdateFactory.zoomTo(14), 2000, null);
+
             }
             stopLocationUpdates();
 
@@ -100,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
 
         telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -121,6 +124,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.myMap);
         mapFragment.getMapAsync(this);
+
+        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            getLastLocation();
+        } else {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_LAST_LOCATION);
+        }
 
 
         btnCheckIn.setOnClickListener(new View.OnClickListener() {
@@ -144,10 +153,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == REQUEST_CODE_LOCATION && permissions.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//            getLastLocation();
-            checkSettingAndStartLocationUpdates();
+        if (permissions.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            switch (requestCode) {
+                case REQUEST_CODE_LAST_LOCATION:
+                    getLastLocation();
+                    break;
+                case REQUEST_CODE_LOCATION:
+                    checkSettingAndStartLocationUpdates();
+                    break;
+            }
         }
     }
 
@@ -164,13 +178,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onSuccess(Location location) {
                         if (location != null) {
-                            currentLocation = location;
-                            double distance = getDistance(currentLocation.getLatitude(), currentLocation.getLongitude(),
-                                    NASU_LATLNG.latitude, NASU_LATLNG.longitude);
-                            tvLocation.setText(Html.fromHtml(
-                                    "<b>Latitude: </b>" + currentLocation.getLatitude()
-                                            + "<br><b>Longitude: </b>" + currentLocation.getLongitude()));
-                            tvDistance.setText(String.format("%2f Mét", distance));
+//                            currentLocation = location;
+//                            double distance = getDistance(currentLocation.getLatitude(), currentLocation.getLongitude(),
+//                                    NASU_LATLNG.latitude, NASU_LATLNG.longitude);
+//                            tvLocation.setText(Html.fromHtml(
+//                                    "<b>Latitude: </b>" + currentLocation.getLatitude()
+//                                            + "<br><b>Longitude: </b>" + currentLocation.getLongitude()));
+//                            tvDistance.setText(String.format("%2f Mét", distance));
+                            map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
                         } else {
                             tvLocation.setText("No data");
                         }
@@ -249,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
+        addLocation();
 //        map.moveCamera(CameraUpdateFactory.newLatLngZoom(NASU_LATLNG, 18));
     }
 
